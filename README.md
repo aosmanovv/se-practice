@@ -1,1 +1,2 @@
-# se-practice
+Osmanov Amal Monday(16-19)
+
