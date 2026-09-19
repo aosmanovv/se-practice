@@ -164,24 +164,21 @@ both values rounded to exactly 2 decimals.
 
 Six cases × four prompts. Verdicts are **PASS**, **FAIL** or **ERROR** only.
 
-| # | Call | Required | A | B | C | D |
-| --- | --- | --- | --- | --- | --- | --- |
-| 1 | `analyze_marks([40, 60, 80], 50)` | avg 60 · high 80 · low 40 · rate 66.67 | | | | |
-| 2 | `analyze_marks([100], 50)` | avg 100 · high 100 · low 100 · rate 100 | | | | |
-| 3 | `analyze_marks([49.5, 50], 50)` | avg 49.75 · high 50 · low 49.5 · rate 50 | | | | |
-| 4 | `analyze_marks([], 50)` | raises ValueError | | | | |
-| 5 | `analyze_marks([40, "60"], 50)` | raises ValueError | | | | |
-| 6 | `analyze_marks([-1, 50, 101], 50)` | raises ValueError | | | | |
-| | **Totals** | | /6 | /6 | /6 | /6 |
+| # | Call | Required | A     | B    | C    | D    |
+| --- | --- | --- |-------|------|------|------|
+| 1 | `analyze_marks([40, 60, 80], 50)` | avg 60 · high 80 · low 40 · rate 66.67 | ERROR | PASS | PASS | PASS |
+| 2 | `analyze_marks([100], 50)` | avg 100 · high 100 · low 100 · rate 100 | ERROR | PASS | PASS | PASS |
+| 3 | `analyze_marks([49.5, 50], 50)` | avg 49.75 · high 50 · low 49.5 · rate 50 | ERROR | PASS | PASS | PASS |
+| 4 | `analyze_marks([], 50)` | raises ValueError | ERROR | PASS | PASS | PASS |
+| 5 | `analyze_marks([40, "60"], 50)` | raises ValueError | ERROR | PASS | PASS | PASS |
+| 6 | `analyze_marks([-1, 50, 101], 50)` | raises ValueError | ERROR | PASS | PASS | PASS |
+| | **Totals** | | 0/6   | 6/6  | 6/6  | 6/6  |
 
 **For every FAIL and ERROR above, one line: what was returned or raised instead.**
 
-| Prompt | Case | What actually happened |
-| --- | --- | --- |
-| | | |
-| | | |
-| | | |
-
+| Prompt | Case      | What actually happened         |
+|--------|-----------|--------------------------------|
+| A      | Each case | nothing, prompt a have no code |
 ### Pasted terminal output — all four runs
 
 > This is the part that makes the table above count. Paste the **whole** output, unedited,
@@ -190,25 +187,119 @@ Six cases × four prompts. Verdicts are **PASS**, **FAIL** or **ERROR** only.
 **Prompt A**
 
 ```
-
+ERROR: code\prompt_a.py defines no callable named 'analyze_marks'.
+All six cases count as ERROR. Record that in lab-report.md.
 ```
 
 **Prompt B**
 
 ```
-
+========================================================================
+analyze_marks harness — code/prompt_b.py
+tolerance for numeric comparison: 0.01
+========================================================================
+SIGNATURE: ok
+------------------------------------------------------------------------
+case 1  PASS   analyze_marks([40, 60, 80], 50)
+          expect: average=60.0, highest=80, lowest=40, pass_rate=66.67
+          got   : average=60.0, highest=80, lowest=40, pass_rate=66.66666666666666
+------------------------------------------------------------------------
+case 2  PASS   analyze_marks([100], 50)
+          expect: average=100.0, highest=100, lowest=100, pass_rate=100.0
+          got   : average=100.0, highest=100, lowest=100, pass_rate=100.0
+------------------------------------------------------------------------
+case 3  PASS   analyze_marks([49.5, 50], 50)
+          expect: average=49.75, highest=50, lowest=49.5, pass_rate=50.0
+          got   : average=49.75, highest=50, lowest=49.5, pass_rate=50.0
+------------------------------------------------------------------------
+case 4  PASS   analyze_marks([], 50)
+          expect: ValueError
+          got   : raised ValueError: marks list cannot be empty
+------------------------------------------------------------------------
+case 5  PASS   analyze_marks([40, '60'], 50)
+          expect: ValueError
+          got   : raised ValueError: non-numeric mark found: '60'
+------------------------------------------------------------------------
+case 6  PASS   analyze_marks([-1, 50, 101], 50)
+          expect: ValueError
+          got   : raised ValueError: mark out of range (0-100): -1
+------------------------------------------------------------------------
+RESULT  6 PASS · 0 FAIL · 0 ERROR   (code/prompt_b.py)
+========================================================================
 ```
 
 **Prompt C**
 
 ```
-
+========================================================================                                                                                                            
+analyze_marks harness — code/prompt_c.py
+tolerance for numeric comparison: 0.01
+========================================================================
+SIGNATURE: ok
+------------------------------------------------------------------------
+case 1  PASS   analyze_marks([40, 60, 80], 50)
+          expect: average=60.0, highest=80, lowest=40, pass_rate=66.67
+          got   : average=60.0, highest=80, lowest=40, pass_rate=66.67
+------------------------------------------------------------------------
+case 2  PASS   analyze_marks([100], 50)
+          expect: average=100.0, highest=100, lowest=100, pass_rate=100.0
+          got   : average=100.0, highest=100, lowest=100, pass_rate=100.0
+------------------------------------------------------------------------
+case 3  PASS   analyze_marks([49.5, 50], 50)
+          expect: average=49.75, highest=50, lowest=49.5, pass_rate=50.0
+          got   : average=49.75, highest=50, lowest=49.5, pass_rate=50.0
+------------------------------------------------------------------------
+case 4  PASS   analyze_marks([], 50)
+          expect: ValueError
+          got   : raised ValueError: marks must be a non-empty list
+------------------------------------------------------------------------
+case 5  PASS   analyze_marks([40, '60'], 50)
+          expect: ValueError
+          got   : raised ValueError: non-numeric mark found: '60'
+------------------------------------------------------------------------
+case 6  PASS   analyze_marks([-1, 50, 101], 50)
+          expect: ValueError
+          got   : raised ValueError: mark out of range (0-100): -1
+------------------------------------------------------------------------
+RESULT  6 PASS · 0 FAIL · 0 ERROR   (code/prompt_c.py)
+========================================================================
 ```
 
 **Prompt D**
 
 ```
-
+========================================================================
+analyze_marks harness — code/prompt_d.py
+tolerance for numeric comparison: 0.01
+========================================================================
+SIGNATURE: ok
+------------------------------------------------------------------------
+case 1  PASS   analyze_marks([40, 60, 80], 50)
+          expect: average=60.0, highest=80, lowest=40, pass_rate=66.67
+          got   : average=60.0, highest=80, lowest=40, pass_rate=66.67
+------------------------------------------------------------------------
+case 2  PASS   analyze_marks([100], 50)
+          expect: average=100.0, highest=100, lowest=100, pass_rate=100.0
+          got   : average=100.0, highest=100, lowest=100, pass_rate=100.0
+------------------------------------------------------------------------
+case 3  PASS   analyze_marks([49.5, 50], 50)
+          expect: average=49.75, highest=50, lowest=49.5, pass_rate=50.0
+          got   : average=49.75, highest=50, lowest=49.5, pass_rate=50.0
+------------------------------------------------------------------------
+case 4  PASS   analyze_marks([], 50)
+          expect: ValueError
+          got   : raised ValueError: marks must not be empty
+------------------------------------------------------------------------
+case 5  PASS   analyze_marks([40, '60'], 50)
+          expect: ValueError
+          got   : raised ValueError: mark '60' is not a real number
+------------------------------------------------------------------------
+case 6  PASS   analyze_marks([-1, 50, 101], 50)
+          expect: ValueError
+          got   : raised ValueError: mark -1 is outside the range 0-100
+------------------------------------------------------------------------
+RESULT  6 PASS · 0 FAIL · 0 ERROR   (code/prompt_d.py)
+========================================================================
 ```
 
 ---
@@ -217,19 +308,29 @@ Six cases × four prompts. Verdicts are **PASS**, **FAIL** or **ERROR** only.
 
 0–2 per criterion, using the rubric in `README.md` Part 7.
 
-| Criterion | A | B | C | D |
-| --- | --- | --- | --- | --- |
-| Correctness (cases passed) | | | | |
-| Requirement coverage | | | | |
-| Verifiability (tests) | | | | |
-| Assumptions stated | | | | |
-| Noise (2 = none) | | | | |
-| **Total / 10** | | | | |
+| Criterion | A    | B    | C    | D     |
+| --- |------|------|------|-------|
+| Correctness (cases passed) | 0    | 2    | 2    | 2     |
+| Requirement coverage | 0    | 2    | 2    | 2     |
+| Verifiability (tests) | 0    | 0    | 2    | 2     |
+| Assumptions stated | 0    | 1    | 1    | 2     |
+| Noise (2 = none) | 0    | 2    | 2    | 2     |
+| **Total / 10** | 0/10 | 7/10 | 9/10 | 10/10 |
 
-**Prompt length, in words:** A ____ · B ____ · C ____ · D ____
+**Prompt length, in words:** A 7 · B 44 · C 84 · D 163
 
-**Words added per point gained** — B over A, C over B, D over C. One line on what that ratio says:
+**Words added per point gained** — B over A, C over B, D over C.
+One line on what that ratio says:
 
+The return on extra words drops sharply — the first jump in detail (B) bought a point roughly every 7 words, but by D over 100 words were spent to fix a single remaining edge case, showing most of the value came early and the rest is diminishing returns.
+
+Words added per point gained:
+
+| Transition | Words added | Points gained | Words per point |
+| --- | --- | --- | --- |
+| B over A | 37 | 5 | 7.4 |
+| C over B | 40 | 2 | 20 |
+| D over C | 107 | 1 | 107 | 
 ---
 
 ## 8. Conclusion — 150–200 words
@@ -241,19 +342,36 @@ changed verdict; (3) what was pure noise; (4) the ambiguity and your resolution.
 Name test cases and real returned values. "More detailed prompts work better" scores zero.
 
 ```
-(150–200 words)
 
+D scored highest (10/10), and it's close to what I'd actually use at work - 
+but the full Fraction-based half-up rounding is more than I'd write for a first version; 
+I'd start at C's level and add D's precision only if a real half-cent tie case appeared in production data.
 
+The single addition that bought the most correctness was Prompt B's role, signature, and validation rules: 
+A returned no function at all (ERROR on all 6 cases), while B jumped straight to 6/6 PASS, including case 6 
+(analyze_marks([-1, 50, 101], 50)) correctly raising ValueError, which A couldn't even attempt.
+
+Pure noise: D's `_round_half_up_2dp` via `Fraction`, plus its NaN/inf/complex-number handling.
+None of the six official cases contain an exact rounding tie — case 1's 66.666... rounds to 66.67 
+under ordinary rounding too — so this defensive machinery never changed a verdict.
+
+The ambiguity was how to round `average`/`pass_rate`. B left it unrounded 
+(case 1 passed only via 0.01 tolerance); D resolved it explicitly with round-half-up, 
+which is more correct in principle but unverified by this test suite.
 
 ```
 
 **Word count:**
-
+176
 ---
 
 ## 9. Two questions for the debrief
 
 Written before class, answered in class.
 
-1.
-2.
+1. None of the six graded cases actually contain a rounding tie, 
+so D's more "correct" round-half-up logic never changed a single verdict. 
+Should test suites reward that kind of defensive correctness even when nothing in the suite exercises it?
+2. B reached 7/10 with 44 words; D needed 191 words for the last 3 points. 
+At what point does writing a longer prompt cost more time than just reading 
+the AI's code and fixing it by hand?
