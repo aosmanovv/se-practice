@@ -28,9 +28,9 @@ be checked:
 
 **Confirmations:**
 
-- Each prompt was sent in a **fresh chat**: yes / no
-- No follow-up questions were asked before Part 7: yes / no
-- Every output was saved **before** any editing: yes / no
+- Each prompt was sent in a **fresh chat**: yes
+- No follow-up questions were asked before Part 7: yes
+- Every output was saved **before** any editing: yes
 
 ---
 
@@ -39,26 +39,26 @@ be checked:
 **Prompt sent** (should be exactly one sentence):
 
 ```
-
+Write Python code to analyze student marks.
 ```
 
 **Assumptions the AI made that I never gave it** — list them, one per line. A data format, a pass
 threshold, a rounding rule, an input method, an invented feature all count.
 
-1.
-2.
-3.
+1. no assumptions, it only asked 2 questions
+2. 
+3. 
 
 **Questions it should have asked and did not:**
 
-1.
-2.
+1. Do you have a specific data file with student marks, or should I write a general-purpose script with sample data?
+2. What kind of analysis should the script perform?
 
 **Is the function named `analyze_marks` with the required signature?** yes / no — if no, what is it
-called:
+called: no, its haven't given any code
 
 **First impression before testing** (one sentence — you will compare this with section 6 later):
-
+I do not have any impression, because there is no code.
 ---
 
 ## 3. Prompt B — structured context
@@ -66,18 +66,20 @@ called:
 **Prompt sent** (paste it in full, including any substitutions):
 
 ```
-
+You are a Python developer. Implement analyze_marks(marks, pass_mark=50). Return
+average, highest, lowest, and pass_rate in a dictionary. Accept marks from 0 to 100;
+raise ValueError for an empty list, non-numeric values, or out-of-range values. Use
+no external libraries. Return code plus a short explanation.
 ```
 
 **What B fixed compared to A:**
 
-1.
-2.
+1. It is working code
+2. It didn't ask any question
 
 **What B still leaves open:**
 
-1.
-2.
+1. Returns raw numbers with no formatting - no 2-decimal average, no 1-decimal pass rate with %
 
 ---
 
@@ -86,25 +88,31 @@ called:
 **What I appended to Prompt B:**
 
 ```
-
+Example: analyze_marks([40, 60, 80], 50) → average 60, highest 80, lowest 40,
+pass_rate 66.67. Include tests for: one mark, decimals, custom pass_mark, empty list,
+text value, and marks below 0 or above 100. State any remaining assumptions before
+the code.
 ```
 
-**Tests the AI wrote for itself** — how many, and which situations do they cover?
+**Tests the AI wrote for itself** — how many, and which situations do they cover?:
+8 tests, covering every situation the prompt asked for.
 
 | Situation | Covered by the AI's tests? |
-| --- | --- |
-| one mark | |
-| decimals | |
-| custom pass_mark | |
-| empty list | |
-| text value | |
-| below 0 / above 100 | |
+| --- |-----------------------|
+| one mark | Yes                   |
+| decimals | Yes                      |
+| custom pass_mark | Yes                      |
+| empty list | Yes                      |
+| text value | Yes                      |
+| below 0 / above 100 | Yes                      |
 
-**Do the AI's own tests pass against the AI's own code?** yes / no
+**Do the AI's own tests pass against the AI's own code?** Yes
 
-**Do they agree with the harness in section 6?** yes / no — if no, where do they disagree:
+**Do they agree with the harness in section 6?** yes
 
 **Assumptions C stated explicitly before the code:**
+
+Booleans are rejected as marks even though bool is technically a subclass of int in Python (True/False aren't meaningful exam scores); the range check is inclusive of both 0 and 100; pass_mark comparison is inclusive (mark >= pass_mark counts as a pass); average and pass_rate are rounded to 2 decimal places, while highest/lowest are returned as-is (no rounding, since they're just the actual min/max values); and pass_mark itself isn't validated (I assumed the caller passes a sane threshold, since the spec only constrains marks).
 
 ---
 
@@ -113,17 +121,43 @@ called:
 **The complete prompt I wrote** (one message, sent to a fresh chat):
 
 ```
+You are a Python developer writing a small, well-tested utility function.
 
+Implement:
+    def analyze_marks(marks, pass_mark=50):
+
+It must return a dictionary with exactly these keys: "average", "highest",
+"lowest", "pass_rate".
+
+Rules:
+- marks is a list of numeric values (int or float), each expected to be in
+  the inclusive range 0-100. A mark equal to pass_mark counts as passing
+  (use >=, not >).
+- Raise ValueError if: the list is empty, any value is not a real number
+  (booleans do not count as numbers), or any value is outside 0-100.
+- Round "average" and "pass_rate" to exactly 2 decimal places using
+  standard rounding. Do not return unrounded floats.
+- Use no external libraries — standard library only.
+- Do not add a CLI, file reading, or any feature beyond this function.
+
+Worked example:
+analyze_marks([40, 60, 80], 50) → {"average": 60.0, "highest": 80,
+"lowest": 40, "pass_rate": 66.67}
+
+Before writing any code, state your assumptions explicitly as a short
+list, separate from the code and its comments.
 ```
 
 **What I deliberately added that A, B and C did not have:**
 
-1.
-2.
-3.
+1. Explicit instruction to round average and pass_rate to 2 decimal places.
+2. Explicit >= rule for pass_mark (a mark equal to it passes).
+3. Explicit "state assumptions before the code" + a ban on extra scope (no CLI, no files).
 
 **The ambiguity I found in the specification, and how I resolved it inside Prompt D:**
-
+No prompt specified how to round average/pass_rate — B left it unrounded, 
+C rounded only as a guess. I resolved it in Prompt D by explicitly requiring 
+both values rounded to exactly 2 decimals.
 ---
 
 ## 6. Test results — the evidence
