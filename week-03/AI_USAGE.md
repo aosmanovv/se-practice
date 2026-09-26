@@ -7,8 +7,8 @@ everything you submit, including everything an AI tool produced.
 | Tool   | Exact model + version | Used for | Which files it touched |
 |--------|-----------------------| --- | --- |
 | Claude | Sonnet 5 Medium       | Prompt 1 — user stories | `requirements/user-stories.md` |
-|     Claude   |        Sonnet 5 Medium               | Prompt 2 — acceptance criteria | `requirements/acceptance-criteria.md` |
-|   Claude     |         Sonnet 5 Medium              | Prompt 3 — use-case diagram | `requirements/use-cases.puml` |
+|     Claude   |        Sonnet 5 Medium   | Prompt 2 — acceptance criteria | `requirements/acceptance-criteria.md` |
+|   Claude     |         Sonnet 5 Medium  | Prompt 3 — use-case diagram | `requirements/use-cases.puml` |
 
 **One tool and one model for all three prompts:** yes
 
