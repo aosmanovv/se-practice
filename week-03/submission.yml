@@ -1,0 +1,50 @@
+# week-03/submission.yml — your declaration for this lab.
+#
+# Facts only. Every explanation goes in lab-report.md; nothing here repeats prose.
+# Fill every value. Check it before you push:
+#
+#     python tests/validate_submission.py
+#
+# The validator checks shape, never quality. A green run is the floor, not the grade.
+# If you cannot run Python, fill the file by hand against the comments — a malformed
+# file costs you nothing if the content is there.
+
+schema: 1
+week: "03"
+
+student:
+  name: Amal
+  student_id: 24B031961
+  github: aosmanovv
+
+assistant:
+  tool: Claude
+  model: Sonnet 5 Medium
+
+counts:
+  user_stories: 8
+  acceptance_criteria_sets: 3
+
+checker:
+  pass: 23
+  fail: 0
+  error: 0
+  commit: 6d518b7
+
+assumptions:
+  overlap_touching_bookings: allowed
+  exactly_two_hours: allowed
+
+traceability:
+  use_cases_not_covered: [UC-06]
+  stories_not_traced: []
+
+review_findings:
+  - "US-05: the AI's story invented an 'add/edit room' function that is not one of the six fixed use cases (only block/unblock, UC-04, exists). Narrowed the story to blocking and unblocking only."
+  - "US-06: the AI's story implied Administrator can configure the 2-hour cap, contradicting the fixed, non-negotiable R2. Reframed as a Student-facing enforcement story instead."
+  - "AC-11 (US-04): the AI's acceptance criterion invented automatic cancellation of existing bookings plus a student notification when a room is blocked. Neither follows from R4, and the notification duplicates an out-of-scope item. Rewrote to state blocking does not affect existing bookings."
+  - "UC-03: the AI's diagram omitted the Administrator→Cancel booking association, even though US-07 (Administrator cancels a student's booking) requires it. Added the missing association."
+
+honesty:
+  can_explain_everything_submitted: yes
+  ai_usage_disclosed: yes
