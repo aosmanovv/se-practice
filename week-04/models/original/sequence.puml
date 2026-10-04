@@ -1,0 +1,60 @@
+@startuml book-room-sequence
+title Smart Campus study room booking - Book room (US-02, US-06)
+
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+autonumber
+
+actor Student
+participant BookingService
+participant BookingRepository
+
+Student -> BookingService : bookRoom(roomId, start, end)
+activate BookingService
+
+' --- R1: needs no stored data, so the service checks it first ---
+BookingService -> BookingService : validateTimeRules(start, end)
+note right of BookingService
+  R1: start is in the future and
+  0 < (end - start) <= 2 h
+end note
+
+break R1 violated (e.g. longer than 2 h, US-06)
+  BookingService --> Student : rejection("invalid time slot", R1)
+end
+
+' --- R3: is the room blocked? ---
+BookingService -> BookingRepository : findRoom(roomId)
+activate BookingRepository
+BookingRepository --> BookingService : room (status AVAILABLE or BLOCKED)
+deactivate BookingRepository
+
+' --- R2: does an active booking of this room overlap? ---
+BookingService -> BookingRepository : findActiveOverlapping(roomId, start, end)
+activate BookingRepository
+BookingRepository --> BookingService : overlappingBookings (list, may be empty)
+deactivate BookingRepository
+
+alt room is AVAILABLE and overlappingBookings is empty
+  ' --- Attempt the reservation ---
+  BookingService -> BookingRepository : save(booking with status ACTIVE)
+  activate BookingRepository
+  BookingRepository --> BookingService : savedBooking (bookingId)
+  deactivate BookingRepository
+
+  BookingService -> BookingService : createConfirmation(savedBooking)
+  BookingService --> Student : confirmation(bookingId, room, start, end)
+  note right of Student
+    R4: a successful booking
+    produces a confirmation.
+  end note
+else room unavailable (BLOCKED - R3, or overlap - R2)
+  BookingService --> Student : rejection("room unavailable", reason R3 or R2)
+  note right of Student
+    Nothing is saved and
+    no confirmation is produced.
+  end note
+end
+
+deactivate BookingService
+@enduml
