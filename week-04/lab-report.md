@@ -8,14 +8,14 @@
 
 ## 1. Setup
 
-| Field | Value                                                               |
-| --- |---------------------------------------------------------------------|
-| Name | Osmanov Amal                                                        |
-| Group | Monday 16-19                                                        |
-| AI assistant | Claude                                                              |
-| Exact model | Sonnet 5                                                            |
+| Field | Value                                                         |
+| --- |---------------------------------------------------------------|
+| Name | Osmanov Amal                                                  |
+| Group | Monday 16-19                                                  |
+| AI assistant | Claude                                                        |
+| Exact model | Sonnet 5                                                      |
 | Renderer | PlantUML web server |
-| Behaviour diagram | <sequence / activity / both>                                        |
+| Behaviour diagram | sequence (3A) |
 | Stories used | my week-03 stories, revised      |
 
 ---
@@ -168,9 +168,6 @@ One row per association in your **revised** class diagram.
 
 ## 6. AI critique
 
-Run the critique prompt once, on all your revised diagrams together. At least **three** rows. A
-critique is another claim to evaluate, not a verdict: reject what is wrong and say why.
-
 | # | Issue the AI raised | Element it cited | Verdict | Why |
 | --- | --- | --- | --- | --- |
 | 1 | R2 and R3 not separately traceable in sequence | `sequence.puml` alt / else branch | accept | Overlap query runs even when room is already blocked; separate `break` for R3 is more precise and matches the R1 pattern already used |
@@ -189,49 +186,64 @@ critique is another claim to evaluate, not a verdict: reject what is wrong and s
 
 ## 7. Consistency table
 
-One row for each of **R1–R4**, then one row for **every use case in your revised use-case
-diagram**, spelled exactly as in the diagram, with the story ID it traces to.
-
 | Requirement / story | Use case | Classes | Behaviour element |
 | --- | --- | --- | --- |
-| R1 | <use case> | <classes and attributes> | <message, guard or decision> |
-| R2 | <use case> | <classes, note> | <message, guard or decision> |
-| R3 | <use case> | <classes and attributes> | <message, guard or decision> |
-| R4 | <use case> | <classes> | <message or action> |
-| <US-01> | <Book room> | <Student, Booking, Room> | <message or action> |
-
+| R1 | Book Room | `Booking` (start, end; note) | sequence note "R1: start is in the future..." + `break R1 violated` |
+| R2 | Book Room | `Booking.overlaps()`; note on `Booking` | `alt overlappingBookings is empty` / `else overlap found (R2)` + boundary note |
+| R3 | Book Room | `Room.status`, `Room.isBlocked()`; note on `Room` | `break room is BLOCKED (R3, US-04)` |
+| R4 | Send Confirmation | `Confirmation`, `ConfirmationKind`; note on `Confirmation` | `createConfirmation(savedBooking)` + `confirmation(...)` reply + note "R4: a successful booking produces a confirmation" |
+| US-01 | Search Available Rooms | `Room` (capacity, `isFree()`) | not modeled — Task 3 scoped to Book Room only |
+| US-02, US-06 | Book Room | `Student`, `Booking`, `Room` | full sequence (messages 1-13) |
+| US-03 | Cancel Own Booking | `Student.cancel()`, `Booking.cancel()` | not modeled — Task 3 scoped to Book Room only |
+| US-04 | Block Room | `Administrator.blockRoom()`, `Room.block()` | not modeled — Task 3 scoped to Book Room only |
+| US-05 | Unblock Room | `Administrator.unblockRoom()`, `Room.unblock()` | not modeled — Task 3 scoped to Book Room only |
+| scenario (no story) | Review Room Usage | `Administrator.reviewUsage()`, `Administrator ..> Booking` | not modeled — Task 3 scoped to Book Room only |
+| US-02, US-03 (R4) | Send Confirmation | `Confirmation` | `createConfirmation(...)` + reply (success branch only) |
 ---
 
 ## 8. Change log
 
-At least **three** rows, and at least one for each required diagram (use case, class, your
-behaviour diagram). "Before" is what the AI produced; "After" is what you submitted.
-
 | # | Diagram | Before (AI's original) | After (your revision) | Reason |
 | --- | --- | --- | --- | --- |
-| 1 | <use case> | <before> | <after> | <rule, story or notation reason> |
-| 2 | <class> | <before> | <after> | <reason> |
-| 3 | <sequence / activity> | <before> | <after> | <reason> |
-
+| 1 | use case | No "Send Confirmation" use case; R4 only in a note under Book Room | Added separate `Send Confirmation` use case, included from Book Room and Cancel Own Booking via an `include` relationship; no actor link | UC-06 is one of the six fixed functions; README's own `why:` example is literally about R4/confirmation |
+| 2 | class | File named `domain-class.puml`; `Administrator` had no dependency on `Booking` | Renamed to `class.puml`; added an `Administrator` dependency on `Booking` (stereotype: use) | Required filename per deliverables table; `reviewUsage()` needs bookings, not just rooms |
+| 3 | sequence | File named `book-room-sequence.puml`; single combined `alt` covered both R2 and R3 with one rejection reason | Renamed to `sequence.puml`; split R3 into its own `break` right after `findRoom`, leaving `alt` for R2 only | Required filename; separates R2/R3 so the rejection reason is unambiguous and the overlap query isn't run on an already-blocked room |
+| 4 | all three + approved-stories.md | Critique round found 7 accepted issues (naming mismatches, missing R2 boundary note, invisible "own booking" constraint, wrong story citation, missing R4 assumption text) | Applied all 7 accepted fixes across use-case.puml, class.puml, sequence.puml, and added the missing R4/cancellation assumption text to approved-stories.md | See §6 for full accept/reject reasoning per issue |
 ---
 
 ## 9. Checker output
 
-Paste the complete output of `python tests/check_models.py`, then explain **every FAIL you are
-keeping**. The same IDs go in `submission.yml` under `checker.kept_fails`. A FAIL you report and explain costs you nothing. One you hide costs the whole criterion.
-
 ```text
-<paste the full output>
+Week 04 structural check - shape only, never quality
+
+UC1  PASS  Student and Administrator declared
+...
+SUMMARY pass=33 fail=4 error=0
 ```
 
-**FAILs I am keeping, and why:** <one line per check ID, or "none">
-
+**FAILs I am keeping, and why:**
+- CL3: `Administrator ..> Room` and `Administrator ..> Booking` are `<<use>>` dependencies, not associations — UML dependencies carry no multiplicity by definition.
+- SQ4: False positive — manually verified `save`/`createConfirmation` occur only inside the alt's success branch, after both breaks complete.
+- CS3: Review Room Usage has no approved story by design — this is the deliberately
+    documented gap from §3/§6 (rejecting the critique's suggestion to invent US-07).
+    Adding a fake story ID here would violate the README's own instruction not to
+    "paper over" an untraceable use case.
+- 
 ---
 
 ## 10. Conclusion (120–180 words)
 
-<Which diagram did the AI get most wrong, and what exactly was wrong? Which error would have
-reached the code if nobody had reviewed it? What did the critique find that you missed — and what
-did it claim that was false? Be specific: "the AI got the multiplicities wrong" is worth nothing;
-"the AI put 1..* on the Booking end, which says every room must already have a booking" is worth
-everything.>
+The use-case diagram was wrong in the way with the biggest downstream consequence: 
+the AI's first draft folded Send Confirmation into a note under Book Room instead of 
+modeling UC-06 as its own use case, and its accompanying assumption claimed cancellation 
+produces no confirmation. Had this gone uncorrected, cancellations would never create a 
+Confirmation record a direct violation of R4, which the scenario's own UC-06 text 
+("confirms a booking or a cancellation") and approved-stories.md's US-03→R4 
+mapping both require. The critique caught genuine drift I had introduced 
+myself: book() vs bookRoom() naming, and confirmation(...) reply fields 
+that didn't match the Confirmation class - both would have broken at 
+integration. It was wrong, however, to claim the cancellation confirmation 
+was "unjustified": that's a declared assumption backed by the scenario text, not an invention. 
+It was also wrong to suggest inventing US-07 for Review Usage - the README 
+explicitly treats an untraceable use case as a finding to report, not a gap to 
+paper over with a fabricated story.
