@@ -5,7 +5,7 @@
 > your set was rejected in review, keep the reference set below and say so in `lab-report.md` §1.
 > Either way, the IDs here are the ones your consistency table (§7) must use.
 
-**Source of this set:** <my week-03 stories, revised / the reference set>
+**Source of this set:** week-03 stories, revised
 
 ## Scenario (from the Lesson 04 practice deck, slide 7)
 
@@ -20,13 +20,15 @@ or unblock rooms and review usage.
 ## Reference set
 
 | ID | Story | Rules |
-| --- | --- | --- |
-| US-01 | As a student, I want to book a free study room for a time slot, so that I have a place to work, and I get a confirmation when the booking succeeds. | R1, R2, R3, R4 |
-| US-02 | As a student, I want to see which rooms are free at a given time, so that I can choose one before booking. | — |
-| US-03 | As a student, I want to cancel one of my own bookings, so that the room is released for others. | R2 |
-| US-04 | As an administrator, I want to block a room, so that no new bookings can be made for it. | R3 |
-| US-05 | As an administrator, I want to unblock a room, so that students can book it again. | R3 |
-| US-06 | As an administrator, I want to review how rooms are used, so that I can plan capacity. | — |
+|------|-------|-------|
+| US-01 | As a Student, I want to search for available study rooms by date, time and capacity, so that I can find a room that fits my group without contacting the library. | — |
+| US-02 | As a Student, I want to book a free room for a specific time slot, so that I have a guaranteed place to study at that time. | R1, R2, R3, R4 |
+| US-03 | As a Student, I want to cancel a booking I made, so that I can free up the room when I no longer need it. | R4 |
+| US-04 | As an Administrator, I want to block a room that is out of service, so that students cannot book it while it cannot be used. | R3 |
+| US-05 | As an Administrator, I want to unblock a room once it is usable again, so that students can resume booking it. | R3 |
+| US-06 | As a Student, I want the system to refuse a booking longer than two hours, so that room time is shared fairly among everyone. | R1 |
+
 
 **Out of scope** (do not model): payments, equipment in rooms, recurring bookings, waiting lists,
 notifications other than the booking confirmation, user registration.
+    
