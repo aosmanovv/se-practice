@@ -1,4 +1,4 @@
-@startuml book-room-sequence
+@startuml sequence
 title Smart Campus study room booking - Book room (US-02, US-06)
 
 skinparam shadowing false
@@ -12,7 +12,6 @@ participant BookingRepository
 Student -> BookingService : bookRoom(roomId, start, end)
 activate BookingService
 
-' --- R1: needs no stored data, so the service checks it first ---
 BookingService -> BookingService : validateTimeRules(start, end)
 note right of BookingService
   R1: start is in the future and
@@ -23,33 +22,46 @@ break R1 violated (e.g. longer than 2 h, US-06)
   BookingService --> Student : rejection("invalid time slot", R1)
 end
 
-' --- R3: is the room blocked? ---
 BookingService -> BookingRepository : findRoom(roomId)
 activate BookingRepository
 BookingRepository --> BookingService : room (status AVAILABLE or BLOCKED)
 deactivate BookingRepository
+note right of BookingService
+  Equivalent to Room.isBlocked()
+  in the domain model.
+end note
 
-' --- R2: does an active booking of this room overlap? ---
+break room is BLOCKED (R3, US-04)
+  BookingService --> Student : rejection("room blocked", R3)
+end
+
 BookingService -> BookingRepository : findActiveOverlapping(roomId, start, end)
 activate BookingRepository
 BookingRepository --> BookingService : overlappingBookings (list, may be empty)
 deactivate BookingRepository
+note right of BookingService
+  R2: overlap iff existing.start < end
+  and start < existing.end (half-open
+  intervals, so touching bookings do
+  not overlap). Equivalent to
+  Room.isFree() / Booking.overlaps()
+  in the domain model.
+end note
 
-alt room is AVAILABLE and overlappingBookings is empty
-  ' --- Attempt the reservation ---
+alt overlappingBookings is empty
   BookingService -> BookingRepository : save(booking with status ACTIVE)
   activate BookingRepository
   BookingRepository --> BookingService : savedBooking (bookingId)
   deactivate BookingRepository
 
   BookingService -> BookingService : createConfirmation(savedBooking)
-  BookingService --> Student : confirmation(bookingId, room, start, end)
+  BookingService --> Student : confirmation(confirmationId, bookingId, issuedAt)
   note right of Student
     R4: a successful booking
     produces a confirmation.
   end note
-else room unavailable (BLOCKED - R3, or overlap - R2)
-  BookingService --> Student : rejection("room unavailable", reason R3 or R2)
+else overlap found (R2)
+  BookingService --> Student : rejection("room unavailable", R2)
   note right of Student
     Nothing is saved and
     no confirmation is produced.

@@ -83,7 +83,7 @@ Return the corrected PlantUML in full.
 ### 2.5 Critique prompt
 
 ```text
-<paste>
+Compare my diagrams with the requirements. Identify missing rules, inconsistent names, and unjustified elements. Cite each issue and propose a specific correction.
 ```
 
 ---
@@ -173,11 +173,19 @@ critique is another claim to evaluate, not a verdict: reject what is wrong and s
 
 | # | Issue the AI raised | Element it cited | Verdict | Why |
 | --- | --- | --- | --- | --- |
-| 1 | <issue> | <element> | <accept / reject> | <your reason> |
-| 2 | <issue> | <element> | <accept / reject> | <your reason> |
-| 3 | <issue> | <element> | <accept / reject> | <your reason> |
-
----
+| 1 | R2 and R3 not separately traceable in sequence | `sequence.puml` alt / else branch | accept | Overlap query runs even when room is already blocked; separate `break` for R3 is more precise and matches the R1 pattern already used |
+| 2 | R2 boundary case missing from sequence | `findActiveOverlapping` message | accept | use-case.puml and class.puml both state the half-open-interval rule; sequence silently omits it |
+| 3 | "Own booking" constraint only in a source comment | `class.puml` comment; `UC_Cancel` | accept | PlantUML comments don't render; a reader of the diagram image never sees this constraint |
+| 4 | `book()` vs `bookRoom()` name/signature mismatch | `Student.book()`, sequence `bookRoom()` | accept | Same operation, two names and two signatures across diagrams — breaks consistency table traceability |
+| 5 | `confirmation(...)` fields don't match `Confirmation` class | sequence reply message | accept | Message carries `room, start, end`; class has `confirmationId, kind, issuedAt` — align to the class |
+| 6 | Rename "Send Confirmation" to avoid implying a delivery channel | `UC_Confirm` | **reject** | "Send confirmation" is the scenario's own fixed name for UC-06 (Week 03 scenario table); renaming breaks traceability to one of the six fixed functions |
+| 7 | `RoomStatus.AVAILABLE` is overloaded with "available" elsewhere | `RoomStatus` enum | accept (optional) | Valid terminology overlap, but `isBlocked()`/`isFree()` already disambiguate it behaviourally — not required, just polish |
+| 8 | `startTime`/`endTime` vs `start`/`end` | `Booking` attributes vs. every parameter | accept | Real naming drift between the attribute names and every operation parameter that refers to them |
+| 9 | BookingService/BookingRepository and domain methods never connect across diagrams | class.puml vs. sequence.puml | partial accept | The gap is real, but the proposed fix (add them to class.puml) contradicts the assignment's own instruction that these are design components, not domain classes (§5, not class.puml). Accepted instead: add sequence notes mapping each step to the existing domain operation |
+| 10 | Cancellation confirmation is "unjustified", contradicts R4's literal text | `ConfirmationKind.CANCELLATION`, multiplicity `1..2` | **reject** | Already a declared assumption (§4.3 of approved-stories.md), independently supported by the Week 03 scenario's own UC-06 text ("confirms a booking or a cancellation") — not just the story-table cell the critique saw. Kept, but note wording tightened to read as an explicit interpretation of R4 |
+| 11 | Wrong story cited for usage review ("US-05, scenario") | `class.puml` comment on `Administrator ..> Booking` | accept | My own error from the Task 2 correction round — US-05 is unblock, not usage review. Changed to "scenario (no story)" |
+| 12 | Invent US-07 to cover Review Room Usage | `UC_Usage`, `Administrator.reviewUsage()` | **reject** | README explicitly forbids this: "a use case with nothing behind it is a finding, not a failure — write it down rather than inventing a story to paper over it" |
+| 13 | Delete `Student.name`, `Administrator.name`, `Administrator.adminId` | class attributes | mostly reject | Names are already covered by declared assumption A8 (minimal identifying attributes); `adminId` must stay — it is Administrator's only identifier, and every other class has one |
 
 ## 7. Consistency table
 

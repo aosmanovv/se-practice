@@ -9,7 +9,7 @@ class Student {
   studentId : String
   name : String
   --
-  book(room : Room, start : DateTime, end : DateTime) : Booking
+  bookRoom(roomId : String, start : DateTime, end : DateTime) : Confirmation
   cancel(booking : Booking) : Confirmation
 }
 
@@ -27,8 +27,8 @@ class Room {
 
 class Booking {
   bookingId : String
-  startTime : DateTime
-  endTime : DateTime
+  start : DateTime
+  end : DateTime
   status : BookingStatus
   --
   duration() : Duration
@@ -74,16 +74,20 @@ Student "1" -- "0..*" Booking : makes >
 ' US-02, R2, R3: a booking reserves exactly one room; a room has many bookings over time.
 Booking "0..*" -- "1" Room : reserves >
 
-' R4: one confirmation when the booking succeeds, a second if it is later cancelled.
+' R4 (booking) - by assumption also covers a successful cancellation (approved-stories.md).
 Booking "1" -- "1..2" Confirmation : confirmed by >
 
 ' US-04, US-05, scenario: the administrator acts on rooms, but nothing requires
 ' recording who blocked a room, so this is a dependency, not a stored association.
 Administrator ..> Room : <<use>>
 
+' scenario (no story): reviewing usage reads existing bookings, so the
+' administrator also depends on Booking, not only on Room.
+Administrator ..> Booking : <<use>>
+
 ' --- Rule notes ---
 note right of Booking
-  R1: startTime is in the future when booked;
+  R1: start is in the future when booked;
   0 < duration() <= 2 h (US-06).
   R2: no two ACTIVE bookings of the same
   room overlap; intervals are [start, end),
@@ -97,7 +101,8 @@ note right of Room
 end note
 
 note right of Confirmation
-  R4: produced by a successful booking
-  and by a successful cancellation.
+  R4 (booking) - by assumption, also
+  covers a successful cancellation, per
+  the scenario's UC-06 text.
 end note
 @enduml

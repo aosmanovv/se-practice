@@ -31,4 +31,8 @@ or unblock rooms and review usage.
 
 **Out of scope** (do not model): payments, equipment in rooms, recurring bookings, waiting lists,
 notifications other than the booking confirmation, user registration.
-    
+
+**Assumption (declared per §4.3):** Rule R4 ("a successful booking produces a confirmation") is
+interpreted as also covering a successful cancellation, consistent with the Week 03 scenario's
+UC-06 description ("the system confirms a booking or a cancellation"). This is why US-03 is
+tagged R4 above.

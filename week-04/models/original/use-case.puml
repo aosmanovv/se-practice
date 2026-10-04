@@ -9,40 +9,67 @@ actor Student
 actor Administrator
 
 rectangle "Smart Campus Study Room Booking System" {
-  usecase "Search Available Rooms" as UC1
-  usecase "Book Room" as UC2
-  usecase "Cancel Own Booking" as UC3
-  usecase "Block Room" as UC4
-  usecase "Unblock Room" as UC5
-  usecase "Review Room Usage" as UC6
+  usecase "Search Available Rooms" as UC_Search
+  usecase "Book Room" as UC_Book
+  usecase "Cancel Own Booking" as UC_Cancel
+  usecase "Send Confirmation" as UC_Confirm
+  usecase "Block Room" as UC_Block
+  usecase "Unblock Room" as UC_Unblock
+  usecase "Review Room Usage" as UC_Usage
+
+  note right of UC_Book
+    R1: future start, 0 < duration <= 2 h
+    (US-06 = rejection flow when > 2 h)
+    R2: no overlap with an active booking
+    of the same room; bookings that only
+    touch (end 12:00 / start 12:00) do
+    NOT overlap
+    R3: blocked room is refused
+  end note
+
+  note right of UC_Cancel
+    US-03: only the student who made
+    the booking may cancel it.
+  end note
+
+  note right of UC_Confirm
+    R4 says "a successful booking confirms".
+    By assumption (approved-stories.md,
+    consistent with the scenario's UC-06
+    text "confirms a booking or a
+    cancellation"), this also covers a
+    successful cancellation.
+    Never initiated by an actor;
+    reached only via <<include>>.
+  end note
+
+  note right of UC_Block
+    R3: a blocked room accepts
+    no new bookings.
+  end note
+
+  note right of UC_Usage
+    From the scenario text;
+    no approved story yet.
+  end note
 }
 
-' Student goals
-Student -- UC1 : US-01
-Student -- UC2 : US-02, US-06
-Student -- UC3 : US-03
+' --- Student goals ---
+Student -- UC_Search : US-01
+Student -- UC_Book : US-02, US-06
+Student -- UC_Cancel : US-03
 
-' Administrator goals
-UC4 -- Administrator : US-04
-UC5 -- Administrator : US-05
-UC6 -- Administrator : scenario
+' --- Administrator goals ---
+Administrator -- UC_Block : US-04
+Administrator -- UC_Unblock : US-05
+Administrator -- UC_Usage : scenario
 
-note bottom of UC2
-  Enforces R1 (future start, 0 < duration <= 2 h),
-  R2 (no overlap for same room),
-  R3 (blocked room refused),
-  R4 (confirmation on success).
-  US-06 (refuse > 2 h) is the R1
-  rejection flow of this use case.
-end note
+' --- Includes ---
+' why: R4 - every successful booking must produce a confirmation
+UC_Book ..> UC_Confirm : <<include>>
 
-note bottom of UC4
-  R3: a blocked room accepts
-  no new bookings.
-end note
+' why: R4 - approved-stories.md maps US-03 to R4, so a successful cancellation confirms too
+UC_Cancel ..> UC_Confirm : <<include>>
 
-note bottom of UC6
-  From the scenario text;
-  no approved story yet.
-end note
+' No actor is associated with Send Confirmation: no actor initiates it.
 @enduml
