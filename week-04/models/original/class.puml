@@ -1,0 +1,103 @@
+@startuml class
+title Smart Campus study room booking - Domain class diagram
+
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+hide circle
+
+class Student {
+  studentId : String
+  name : String
+  --
+  book(room : Room, start : DateTime, end : DateTime) : Booking
+  cancel(booking : Booking) : Confirmation
+}
+
+class Room {
+  roomId : String
+  name : String
+  capacity : Integer
+  status : RoomStatus
+  --
+  isBlocked() : Boolean
+  isFree(start : DateTime, end : DateTime) : Boolean
+  block()
+  unblock()
+}
+
+class Booking {
+  bookingId : String
+  startTime : DateTime
+  endTime : DateTime
+  status : BookingStatus
+  --
+  duration() : Duration
+  isActive() : Boolean
+  overlaps(start : DateTime, end : DateTime) : Boolean
+  cancel()
+}
+
+class Confirmation {
+  confirmationId : String
+  kind : ConfirmationKind
+  issuedAt : DateTime
+}
+
+class Administrator {
+  adminId : String
+  name : String
+  --
+  blockRoom(room : Room)
+  unblockRoom(room : Room)
+  reviewUsage(from : Date, to : Date)
+}
+
+enum RoomStatus {
+  AVAILABLE
+  BLOCKED
+}
+
+enum BookingStatus {
+  ACTIVE
+  CANCELLED
+}
+
+enum ConfirmationKind {
+  BOOKING
+  CANCELLATION
+}
+
+' --- Associations ---
+' US-02, US-03: a booking is made by exactly one student, who alone may cancel it.
+Student "1" -- "0..*" Booking : makes >
+
+' US-02, R2, R3: a booking reserves exactly one room; a room has many bookings over time.
+Booking "0..*" -- "1" Room : reserves >
+
+' R4: one confirmation when the booking succeeds, a second if it is later cancelled.
+Booking "1" -- "1..2" Confirmation : confirmed by >
+
+' US-04, US-05, scenario: the administrator acts on rooms, but nothing requires
+' recording who blocked a room, so this is a dependency, not a stored association.
+Administrator ..> Room : <<use>>
+
+' --- Rule notes ---
+note right of Booking
+  R1: startTime is in the future when booked;
+  0 < duration() <= 2 h (US-06).
+  R2: no two ACTIVE bookings of the same
+  room overlap; intervals are [start, end),
+  so 11:00-12:00 and 12:00-13:00 do not overlap.
+end note
+
+note right of Room
+  R3: a room with status BLOCKED
+  accepts no new booking.
+  capacity supports search (US-01).
+end note
+
+note right of Confirmation
+  R4: produced by a successful booking
+  and by a successful cancellation.
+end note
+@enduml
