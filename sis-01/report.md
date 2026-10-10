@@ -61,14 +61,30 @@ Row 2 now says delivery reduces risk and speeds recovery, not that the customer 
 
 <!-- 100–150 words. Your recommendation for the scenario and its main limitation. -->
 
-(write here)
+I’d treat the prototype as a starting point, nothing more. 
+What the lab should ask for is a small package it can actually rely on. 
+Before every update, make a copy of the data. Keep regular backups outside the hosting, 
+and test that a restore really works. Run the new system alongside Telegram for a while, 
+so nobody is stuck if it fails. Name a person responsible for the accounts and the hosting, 
+and write a short guide for the assistants. Nice screens and growth can wait.
+My evidence is thin, though. I checked only two lecture slides, and they show the problem better 
+than they support these fixes. Hosting, login options, data-protection rules, backup frequency and 
+whether the assistants will run the system are all unconfirmed. University IT and the lab should 
+settle them before the plan is final.
 
 ## 5. Reflection
 
 <!-- 150–200 words. NOT part of the main total. Written by you, not by the assistant:
      what helped, what you changed, what you learned. Specific beats flattering. -->
 
-(write here)
+My own five ideas were all about the product: design, relevance, potential, functionality, security. Nothing about recovery, tests or handover. The first AI draft pointed that out, and it was the most useful moment of the whole task, because it showed me the question was about delivery, not about having a good product.
+The critique itself helped less than I hoped. Some points were fair, mainly that rolling back code won’t bring back lost bookings. But the reviewer also made up hour estimates and claimed nobody buys anything without a budget. I rejected both. Now I read an AI critique as one more claim to check.
+Checking two slides changed how I treat AI sentences. Slide 44 backed up the prototype claim. Slide 20 only named a maintenance problem and said nothing about a handover note, so I softened that line.
+
+My biggest edit was a single sentence: 
+“keep the previous version” became “make a data copy before 
+every update.” What I still can’t say is how free hosting really behaves. 
+I never checked it.
 
 ## 6. References
 
@@ -457,5 +473,7 @@ A lecture names the difficulty of maintaining a system once the original team ha
 
 | AI wording / suggestion | Your final version | Reason for change |
 | --- | --- | --- |
-| (write here) | (write here) | (write here) |
-| (write here) | (write here) | (write here) |
+| "a fix can be tried on a copy of the data first, and the previous version kept so the change can be undone" | Copy the data before every update; keep regular backups outside the hosting, with a restore that is actually tested | The scenario's risk is overwritten bookings, which live in the data. Rolling back the code does not restore them (critique point 1). |
+| "the customer is buying trust, not just a program. Delivery must make sure that trust survives mistakes." | Delivery cannot guarantee trust; it reduces risk and speeds recovery | No checked source supports the stronger claim, and one misread guide could still lose trust (critique point 3, qualified). |
+| "Existing reservations in the Telegram chat must be transferred" | Only future bookings are entered; the old chat stays as an archive (an assumption) | With one developer and three weeks, migrating free-text chat history is unrealistic (critique point 10). |
+| "a handover note for whoever maintains the system later are part of delivery" | A short handover note is my own inference, not prescribed by the lecture | Lesson #02, slide 20 names the maintenance problem but does not prescribe the remedy (verification row 2). |
