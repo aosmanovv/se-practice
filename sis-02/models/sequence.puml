@@ -1,3 +1,58 @@
-' SIS #02 — your FINAL sequence diagram goes here, as PlantUML (@startuml … @enduml).
-' Start from the AI's original in models/original/sequence.puml, apply your accepted review
-' decisions, then render it to models/img/sequence.png (or .svg). README section 5.
+@startuml
+title Browse catalog and register for a course offering
+skinparam sequenceMessageAlign left
+skinparam responseMessageBelowArrow true
+
+actor Student
+participant "Catalog / Registration UI" as UI <<technical>>
+participant "RegistrationService" as Svc <<technical>>
+database "Enrollment Store" as Store <<technical>>
+
+== Browse catalog (R1) - read only, no place is reserved ==
+Student -> UI : openCatalog(semester)
+UI -> Svc : getCatalog(semester)
+Svc -> Store : findOfferings(semester)
+Store --> Svc : offerings with offeringId, course code, title,\ncapacity, count(enrollments of the offering)
+note right of Svc
+  availablePlaces = capacity - count(enrollments of the offering)
+  (calculated at viewing time; may be stale later)
+end note
+Svc --> UI : catalog rows (code, title, offering, availablePlaces)
+UI --> Student : show catalog, e.g. INF101 / Introduction to Programming /\nINF101-A / 1 place
+Student -> UI : selectOffering(offeringId)
+
+== Request registration (R2-R5) ==
+Student -> UI : register(offeringId)
+UI -> Svc : register(studentId, offeringId)
+
+Svc -> Store : registerAtomically(studentId, offeringId)
+activate Store
+
+group ATOMIC OPERATION (one transaction: final checks + creation)
+  Store -> Store : lock offering; read current enrollments
+  alt already enrolled (R3)
+    Store --> Svc : result = already enrolled\n(rollback, no state change)
+  else course full (R2)
+    Store --> Svc : result = course full\ncount(enrollments of the offering) >= capacity\n(rollback, no state change)
+  else not enrolled and places left (R4)
+    Store -> Store : create Enrollment(student, offering)
+    Store --> Svc : result = success(enrollmentId, availablePlaces)\navailablePlaces = capacity - count(enrollments of the offering)\n(commit)
+  end
+end
+deactivate Store
+
+alt not enrolled and places left (R4)
+  Svc --> UI : confirmation(enrollmentId, offering, availablePlaces)
+  UI --> Student : "Registration confirmed"
+else already enrolled (R5)
+  Svc --> UI : rejection("already enrolled")
+  UI --> Student : "You are already enrolled in this offering"
+else course full (R5)
+  Svc --> UI : rejection("course full")
+  UI --> Student : "Course full"
+end
+note over Svc, Student
+  In the already enrolled and course full cases:
+  rollback, no state change (no Enrollment created, count unchanged).
+end note
+@enduml
