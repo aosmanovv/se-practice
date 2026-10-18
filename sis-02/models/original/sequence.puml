@@ -1,0 +1,54 @@
+@startuml
+title Browse catalog and register for a course offering
+skinparam sequenceMessageAlign left
+skinparam responseMessageBelowArrow true
+
+actor "Student\n(e.g. S1001)" as Student
+participant "Catalog / Registration UI" as UI <<technical>>
+participant "RegistrationService" as Svc <<technical>>
+database "Enrollment Store\n(transactional)" as Store <<technical>>
+
+== Browse catalog (R1) - read only, no place is reserved ==
+Student -> UI : openCatalog(semester)
+UI -> Svc : getCatalog(semester)
+Svc -> Store : findOfferings(semester)
+Store --> Svc : offerings with course code, title,\ncapacity, enrolledCount
+note right of Svc
+  availablePlaces = capacity - enrolledCount
+  (calculated at viewing time; may be stale later)
+end note
+Svc --> UI : catalog rows (code, title, offering, availablePlaces)
+UI --> Student : show catalog, e.g. INF101 / Introduction to Programming /\nINF101-A / 1 place
+
+== Request registration (R2-R5) ==
+Student -> UI : register(offeringId)
+UI -> Svc : register(studentId, offeringId)
+
+Svc -> Store : registerAtomically(studentId, offeringId)
+activate Store
+
+group ATOMIC OPERATION (one transaction: final checks + creation + availability update)
+  Store -> Store : lock offering; read current enrollments
+  alt R3: student already has an Enrollment in this offering
+    Store --> Svc : result = ALREADY_ENROLLED\n(rollback: nothing created)
+  else enrolledCount >= capacity (R2)
+    Store --> Svc : result = COURSE_FULL\n(rollback: nothing created)
+  else student not enrolled and places remain
+    Store -> Store : create Enrollment(student, offering)
+    Store -> Store : enrolledCount = enrolledCount + 1\n(availablePlaces = capacity - enrolledCount)
+    Store --> Svc : result = SUCCESS(enrollmentId, availablePlaces)\n(commit)
+  end
+end
+deactivate Store
+
+alt R4: SUCCESS
+  Svc --> UI : confirmation(enrollmentId, offering, availablePlaces)
+  UI --> Student : "Registration confirmed"
+else R5: ALREADY_ENROLLED
+  Svc --> UI : rejection("already enrolled")
+  UI --> Student : "You are already enrolled in this offering"\n(no enrollment created, count unchanged)
+else R5: COURSE_FULL
+  Svc --> UI : rejection("course full")
+  UI --> Student : "Course full"\n(no enrollment created, count unchanged)
+end
+@enduml

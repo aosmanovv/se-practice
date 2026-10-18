@@ -1,0 +1,54 @@
+@startuml
+title Domain model: course registration
+hide empty methods
+skinparam classAttributeIconSize 0
+
+class Student {
+  studentId : String {id}
+  name : String
+}
+
+class Course {
+  code : String {id}
+  title : String
+}
+
+class CourseOffering {
+  offeringId : String {id}
+  semester : String
+  sectionCode : String
+  capacity : int
+  /enrolledCount : int
+  /availablePlaces : int
+}
+
+class Enrollment {
+  enrollmentId : String {id}
+  enrolledAt : DateTime
+}
+
+Course "1" -- "0..*" CourseOffering : describes >
+Student "1" -- "0..*" Enrollment : holds >
+CourseOffering "1" -- "0..*" Enrollment : receives >
+
+note bottom of CourseOffering
+  **Constraints**
+  {capacity > 0}  (positive whole number)
+  {enrolledCount = count(Enrollment of this offering)}
+  {availablePlaces = capacity - enrolledCount}
+  **Capacity:** enrolledCount <= capacity at all times
+end note
+
+note right of CourseOffering
+  **Offering identity:** offeringId is the identifier.
+  The combination (Course, semester, sectionCode) is also distinct,
+  e.g. INF101 + "Semester 1" + "A".
+  "INF101-A" is a display label only, not an identifier.
+end note
+
+note bottom of Enrollment
+  **Uniqueness:** (Student, CourseOffering) is unique,
+  so a student has at most one Enrollment per offering.
+  Each Enrollment links exactly one Student and one CourseOffering.
+end note
+@enduml
