@@ -1,0 +1,56 @@
+{
+  "name": "check_room",
+  "description": "Checks whether a meeting room can be booked for one time slot and answers Available or Unavailable. It only checks: it does not save, create, change or cancel any booking. Every time is a whole number of minutes since midnight, from 0 to 1440 (range 0-1440), for example 09:00 = 540, 10:00 = 600, 16:30 = 990, 24:00 = 1440. Convert clock times yourself and never guess a value the user did not give.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "start": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 1440,
+        "description": "Requested start of the slot, in whole minutes since midnight (0-1440). 10:00 = 600."
+      },
+      "end": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 1440,
+        "description": "Requested end of the slot, in whole minutes since midnight (0-1440). 24:00 = 1440."
+      },
+      "now": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 1440,
+        "description": "The current time, in whole minutes since midnight (0-1440)."
+      },
+      "blocked": {
+        "type": "boolean",
+        "description": "true if the room is blocked (for example for maintenance), false otherwise."
+      },
+      "bookings": {
+        "type": "array",
+        "description": "Existing bookings of the room on the same day. Use [] if there are none.",
+        "items": {
+          "type": "object",
+          "properties": {
+            "start": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 1440,
+              "description": "Start of an existing booking, in minutes since midnight."
+            },
+            "end": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 1440,
+              "description": "End of an existing booking, in minutes since midnight."
+            }
+          },
+          "required": ["start", "end"],
+          "additionalProperties": false
+        }
+      }
+    },
+    "required": ["start", "end", "now", "blocked", "bookings"],
+    "additionalProperties": false
+  }
+}
