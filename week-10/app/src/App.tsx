@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { canBook, type Result } from './booking'
 import { existingBookings } from './bookings'
+import { minutesOfDay, parseTime } from './timeInput'
 import './App.css'
 
 function formatTime(minutes: number) {
@@ -17,12 +18,9 @@ function App() {
 
   function handleCheck(event: React.FormEvent) {
     event.preventDefault()
-    const [sh, sm] = startText.split(':')
-    const [eh, em] = endText.split(':')
-    const start = Number(sh) * 60 + Number(sm)
-    const end = Number(eh) * 60 + Number(em)
-    const date = new Date()
-    const now = date.getHours() * 60 + date.getMinutes()
+    const start = parseTime(startText)
+    const end = parseTime(endText)
+    const now = minutesOfDay(new Date())
     setResult(canBook({ start, end, now, blocked, bookings: existingBookings }))
   }
 
