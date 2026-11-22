@@ -77,3 +77,11 @@ describe('canBook', () => {
     expect(JSON.stringify(bookings)).toBe(before)
   })
 })
+
+test('R1 AC1: a request whose times are not numbers is Unavailable', () => {
+  // An empty or half-filled time field in App.tsx becomes NaN before canBook is called.
+  const base = { now: 540, blocked: false, bookings: [{ start: 600, end: 660 }] }
+  expect(canBook({ ...base, start: NaN, end: 760 })).toBe('Unavailable')
+  expect(canBook({ ...base, start: 700, end: NaN })).toBe('Unavailable')
+  expect(canBook({ ...base, start: NaN, end: NaN })).toBe('Unavailable')
+})
