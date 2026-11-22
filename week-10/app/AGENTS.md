@@ -21,17 +21,20 @@ Never deploy or publish the app anywhere (no `netlify deploy`); run it locally o
 - AC4 Reject overlaps; allow bookings that only touch at endpoints.
 - AC5 Return Available / Unavailable without changing booking data.
 - AC6 Preserve clear UI feedback on desktop and mobile.
+
 ## Commands
 
 - Install: `npm install`
 - Dev server: `npm run dev`
 - Tests: `npm test`
 - Build: `npm run build`
+
 ## You may
 
 - Edit any file in the project.
 - Add packages when a task needs them.
+
 ## Before you finish
 
 - Make sure the page still loads.
-  - Before proposing the work as accepted, run `npm test` and `npm run build` and report their real output. Never claim a pass you did not run.
+- Before proposing the work as accepted, run `npm test` and `npm run build` and report their real output. Never claim a pass you did not run.
